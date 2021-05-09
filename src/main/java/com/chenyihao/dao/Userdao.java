@@ -1,5 +1,4 @@
 package com.chenyihao.dao;
-
 import com.chenyihao.model.User;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.handlers.BeanHandler;

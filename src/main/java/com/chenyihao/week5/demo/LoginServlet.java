@@ -1,122 +1,110 @@
 package com.chenyihao.week5.demo;
 import com.chenyihao.dao.UserDao;
 import com.chenyihao.model.User;
+import java.sql.*;
 import javax.servlet.*;
 import javax.servlet.http.*;
 import javax.servlet.annotation.*;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.sql.*;
-
 @WebServlet(name = "LoginServlet", value = "/login")
 public class LoginServlet extends HttpServlet {
-    Connection con=null;
-
+    Connection con = null;
     @Override
     public void init() throws ServletException {
-        super.init();
-        /*String driver=getServletConfig().getServletContext().getInitParameter("driver");
-        String url=getServletConfig().getServletContext().getInitParameter("url");
-        String username=getServletConfig().getServletContext().getInitParameter("username");
-        String password=getServletConfig().getServletContext().getInitParameter("password");
-        try {
-            Class.forName(driver);
-            con= DriverManager.getConnection(url,username,password);
-            System.out.println("init()-->"+con);
-        } catch (ClassNotFoundException | SQLException e) {
-            e.printStackTrace();
-        }*/
-        con = (Connection) getServletContext().getAttribute("con");
+//    public Connection dbConn;
+//    public void init() {
+//        try { Class.forName(getServletConfig().getServletContext().getInitParameter("driver"));
+//            dbConn = DriverManager.getConnection(getServletConfig().getServletContext().getInitParameter("url"), getServletConfig().getServletContext().getInitParameter("Username"), getServletConfig().getServletContext().getInitParameter("Password"));
+//        } catch (Exception e) {
+//            System.out.println(e); }
+        con =(Connection)getServletContext().getAttribute("dbConn");
+//        System.out.println(con);
     }
 
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        request.getRequestDispatcher("WEB-INF/views/login.jsp").forward(request,response);
+//        doPost(request, response);
+        request.getRequestDispatcher("WEB-INF/views/login.jsp").forward(request, response);
     }
-
     @Override
+
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        PrintWriter out = response.getWriter();
-        String username=request.getParameter("username");
-        String password=request.getParameter("password");
-
-        UserDao userDao = new UserDao();
+        String name = request.getParameter("name");
+        String password= request.getParameter("password");
+        UserDao userDao=new UserDao();
         try {
-            User user = userDao.findByUsernamePassword(con,username,password);
+            User user= userDao.findByUsernamePassword(con ,name,password);
             if(user!=null){
-//                Cookie c = new Cookie("sessionid",""+user.getId());
-//                c.setMaxAge(10*60);
-//                response.addCookie(c);
-                String rememberMe = request.getParameter("rememberMe");
-                if(rememberMe!=null && rememberMe.equals("1")){
-                    Cookie usernameCookie=new Cookie("cUsername",user.getUsername());
-                    Cookie passwordCookie=new Cookie("cPassword",user.getPassword());
-                    Cookie rememberMeCookie=new Cookie("crememberMe",rememberMe);
+                //week 8
+                // Cookie c=new Cookie(name:"sessionID"),value:""+user.getID());
+                //c.setMaxAge(10*60);
+                //response.addCookie(c);
 
-                    usernameCookie.setMaxAge(5);
-                    passwordCookie.setMaxAge(5);
-                    rememberMeCookie.setMaxAge(5);
 
+
+                String rememberMe=request.getParameter("remember");
+                if (rememberMe!=null &&rememberMe.equals("1"))
+                {
+                    Cookie usernameCookie = new Cookie("cUsername",user.getUsername());
+                    Cookie passwordCookie= new Cookie("cPassword",user.getPassword());
+                    Cookie rememberMeCookie = new Cookie("cRememberMe",request.getParameter("remember"));
+                    usernameCookie.setMaxAge(10);
+                    passwordCookie.setMaxAge(10);
+                    rememberMeCookie.setMaxAge(10);
                     response.addCookie(usernameCookie);
                     response.addCookie(passwordCookie);
                     response.addCookie(rememberMeCookie);
+
                 }
 
-                HttpSession session = request.getSession();
-                System.out.println("session id--> "+session.getId());
+
+                HttpSession session=   request.getSession();
+                System.out.println("session id-->"+session.getId());
                 session.setMaxInactiveInterval(10);
 
+
                 session.setAttribute("user",user);
-                request.getRequestDispatcher("WEB-INF/views/userInfo.jsp").forward(request,response);
+                request.getRequestDispatcher("WEB-INF/views/userinfo.jsp").forward(request,response);
             }else{
-                request.setAttribute("message","Username or Password Error!!!");
-                request.getRequestDispatcher("WEB-INF/views/login.jsp").forward(request,response);
-            }
+                request.setAttribute("msg" ,"username or password Error");
+                request.getRequestDispatcher("WEB-INF/views/login.jsp").forward(request,response); }
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
-
-        /*response.setContentType("text/html");
-        PrintWriter out=response.getWriter();
-        out.println("<html>");
-        out.println("<head><title>Login</title></head>");
-        out.println("<body>");
-        String sql="select * from Usertable where username=? and password=?";
-        PreparedStatement pstmt= null;
+        System.out.println(name + password);
+        System.out.println(con);
         try {
-            pstmt = con.prepareStatement(sql);
-            pstmt.setString(1,username);
-            pstmt.setString(2,password);
-            ResultSet rs= pstmt.executeQuery();
-            if(rs.next()){
-//                out.println("Login Success!!!");
-//                out.println("Welcome,"+username);
-                request.setAttribute("id",rs.getInt("id"));
-                request.setAttribute("username",rs.getString("username"));
-                request.setAttribute("password",rs.getString("password"));
-                request.setAttribute("email",rs.getString("email"));
-                request.setAttribute("gender",rs.getString("gender"));
-                request.setAttribute("birthDate",rs.getString("birthDate"));
-                request.getRequestDispatcher("userInfo.jsp").forward(request,response);
-           }else {//out.println("Login Error!!!");
-                request.setAttribute("message","Username or Password Error!!!");
-                request.getRequestDispatcher("login.jsp").forward(request,response);
+            if( con != null){
+              /*  String sql = "SELECT * FROM usertable WHERE name=? AND password=?;";
+                PreparedStatement ps = con.prepareStatement(sql);
+                ps.setString(1,name);
+                ps.setString(2,password);
+                ResultSet rs = ps.executeQuery();
+                if(rs.next()){
+                    // writer.println("Login Success!!!");
+                    // writer.println("Welcome "+name+".");
+                    request.setAttribute("ID",rs.getInt("id"));
+                    request.setAttribute("Username",rs.getString("name"));
+                    request.setAttribute("Password",rs.getString("password"));
+                    request.setAttribute("Email",rs.getString("email"));
+                    request.setAttribute("Gender",rs.getString("gender"));
+                    request.setAttribute("Birthdate",rs.getDate("birthdate"));
+                    request.getRequestDispatcher("userinfo.jsp").forward(request, response);
+                }else{
+                    request.setAttribute("msg" ,"username or password Error");
+                    request.getRequestDispatcher("login.jsp").forward(request,response);
+                    //  writer.print("Username or Password Error!!!");
+                }
             }
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
+        }catch (Exception e) {
+            System.out.println(e);
         }
-        out.println("</body>");
-        out.println("</html>");*/
-    }
-
-    @Override
-    public void destroy() {
-        super.destroy();
-        try {
-            con.close();
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
+    }*/
+            }
+        }catch (Exception e){
+            e.printStackTrace();
         }
     }
 }
