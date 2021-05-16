@@ -10,7 +10,7 @@ public class FrontEndAuthenticationFilter implements Filter {
     private HttpServletRequest httpRequest;
     private static final String[] loginRequireURLs = {
             "/updateUser","/logout","/myCart"
-    };
+   };
 
     public void destroy() {
     }
@@ -26,7 +26,6 @@ public class FrontEndAuthenticationFilter implements Filter {
         }
 
         HttpSession session = httpRequest.getSession(false);
-
         boolean isLoggedIn = (session != null && session.getAttribute("user") != null);
         String loginURI = httpRequest.getContextPath() + "/login";
         boolean isLoginRequest = httpRequest.getRequestURI().equals(loginURI);
@@ -39,14 +38,13 @@ public class FrontEndAuthenticationFilter implements Filter {
             RequestDispatcher dispatcher = httpRequest.getRequestDispatcher(loginPage);
             dispatcher.forward(req,resp);
         }else {
-            chain.doFilter(req,resp);
+           chain.doFilter(req,resp);
         }
-    }
-
-    private boolean isLoginRequired(){
+   }
+   private boolean isLoginRequired(){
         String requestURL = httpRequest.getRequestURL().toString();
         for (String loginRequireURL : loginRequireURLs) {
-            if (requestURL.contains(loginRequireURL))
+           if (requestURL.contains(loginRequireURL))
                 return true;
         }
         return false;
@@ -54,6 +52,5 @@ public class FrontEndAuthenticationFilter implements Filter {
 
     public void init(FilterConfig config) throws ServletException {
 
-    }
-
+   }
 }
