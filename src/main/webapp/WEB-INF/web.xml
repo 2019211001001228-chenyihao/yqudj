@@ -47,7 +47,7 @@
     </servlet>
     <servlet>
         <servlet-name>LifeCycleServlet</servlet-name>
-        <servlet-class>com.chenyihao.week3.demo.demo</servlet-class>
+        <servlet-class>com.chenyihao.week3.demo.LifeCycleServlet</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>RegisterServlet</servlet-name>
@@ -55,7 +55,7 @@
     </servlet>
     <!--    <servlet>-->
     <!--        <servlet-name>SearchServlet</servlet-name>-->
-    <!--        <servlet-class>com.JieMengyao.week6.demo.SearchServlet</servlet-class>-->
+    <!--        <servlet-class>com.chenyihao.week6.demo.SearchServlet</servlet-class>-->
     <!--    </servlet>-->
     <!--    <servlet-mapping>-->
     <!--        <servlet-name>SearchServlet</servlet-name>-->
@@ -72,11 +72,19 @@
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>RegisterServlet</servlet-name>
+
         <url-pattern>/register</url-pattern>
     </servlet-mapping>
     <welcome-file-list>
         <welcome-file>home</welcome-file>
         <welcome-file>index.jsp</welcome-file>
     </welcome-file-list>
-
+    <filter>
+        <filter-name>JMYFilter</filter-name>
+        <filter-class>com.lab2.ChengYiHaoFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>JMYFilter</filter-name>
+        <url-pattern>/lab2/welcome.jsp</url-pattern>
+    </filter-mapping>
 </web-app>
